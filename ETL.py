@@ -151,6 +151,7 @@ def ETL_data_loading(new_size,plot_train_sample = False,
     return dataframe_depth, train_x_resized,\
      train_y_resized.astype(int), test_x_resized
 
+# to test the script uncomment the next two lines
 # dataframe_depth, train_x, train_y, test_x = \
 #    ETL_data_loading(128,False,False)
 
