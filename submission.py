@@ -2,7 +2,13 @@
 """
 @author: Maher Deeb
 """
-from ETL import ETL_data_loading
+from ETL import ETL_data_loading, _images_id
+import datetime, time
+import pandas as pd
+
+path = './'
+path_test = './data/images_test/'
+test_ids = _images_id(path_test)
 
 def _reshape_image(predicted_mask):
     
@@ -56,5 +62,34 @@ def _reshape_finial_results_for_submission(salt_positions):
                              salt_position_i[1])
     return reshaped_results[:-1]
 
+def _make_it_ready_to_submission(predicted_mask):
+    
+    reshaped_mask = _reshape_image(predicted_mask)
+    salt_positions = _arrage_data_for_submission(reshaped_mask)
+    reshaped_prediction_i = _reshape_finial_results_for_submission(
+            salt_positions)
+    
+    return reshaped_prediction_i
 
-dataframe_depth, train_x, train_y, test_x = ETL_data_loading(128,False,False)
+def submit_results(predicted_y):
+    
+    pred_dict = {}
+    for id_n in range(len(test_ids)):
+        
+        # this has to be changed after we get predicted_y
+        predicted_mask_i = predicted_y[id_n]
+    
+        pred_dict.update({test_ids[id_n].split('.')[0]: _make_it_ready_to_submission(
+                predicted_mask_i)})
+        # this has to be changed after we get predicted_y
+        if id_n > 20:
+            
+            break
+    
+    sub = pd.DataFrame.from_dict(pred_dict,orient='index')
+    sub.index.names = ['id']
+    sub.columns = ['rle_mask']
+    sub.to_csv(path + '{}_submit.csv'.format(str(round(time.mktime((datetime.datetime.now().timetuple()))))))
+    
+submit_results(train_y)    
+#dataframe_depth, train_x, train_y, test_x = ETL_data_loading(128,False,False)
