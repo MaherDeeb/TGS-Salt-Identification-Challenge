@@ -82,14 +82,14 @@ def submit_results(predicted_y):
         pred_dict.update({test_ids[id_n].split('.')[0]: _make_it_ready_to_submission(
                 predicted_mask_i)})
         # this has to be changed after we get predicted_y
-        if id_n > 20:
+        #if id_n > 20:
             
-            break
+            #break
     
     sub = pd.DataFrame.from_dict(pred_dict,orient='index')
     sub.index.names = ['id']
     sub.columns = ['rle_mask']
     sub.to_csv(path + '{}_submit.csv'.format(str(round(time.mktime((datetime.datetime.now().timetuple()))))))
     
-submit_results(train_y)    
+#submit_results(preds_test_org)    
 #dataframe_depth, train_x, train_y, test_x = ETL_data_loading(128,False,False)
