@@ -24,9 +24,9 @@ def plot_kbis(history):
     ax_acc.plot(history.epoch, history.history["val_acc"],
                 label="Validation accuracy")
 
-def run_model(epochs,batch_size,loss="binary_crossentropy", 
+def run_model(random_state,epochs,batch_size,loss="binary_crossentropy", 
               optimizer="adam", metrics=["accuracy"],
-              plot_KBI=False,random_state):
+              plot_KBI=False):
     
     input_layer = Input((img_size_target, img_size_target, 1))
     output_layer = build_model(input_layer, 16)
@@ -94,17 +94,17 @@ train_ids, dataframe_depth, train_x, train_y, test_x = \
 # 2. Split the data
 random_state=0
 id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
-    train_ids, train_x, train_y, test_size=0.25, random_state=random_state)
+    train_ids, train_x, train_y, test_size=0.1, random_state=random_state)
 
 # 3. load the model and train it    
-history,model = run_model(epochs = 200,batch_size = 32,
+history,model = run_model(random_state,epochs = 200,batch_size = 32,
                           loss="binary_crossentropy", 
               optimizer="adam", metrics=["accuracy"],
-              plot_KBI=False,random_state)
+              plot_KBI=False)
 # 4. predict and calculate the score
 calculate_score(id_cv, X_cv, y_cv)
 # 5. submitt
-threshold = 0.65
+threshold = 0.75
 preds_test = model.predict(test_x)
 preds_test_org = np.zeros((len(preds_test), img_size_original,
                                 img_size_original, 1), dtype=np.uint8)
