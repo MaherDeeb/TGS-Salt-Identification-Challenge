@@ -148,7 +148,7 @@ def ETL_data_loading(new_size,plot_train_sample = False,
                             "test")
         count_image +=1
     
-    return dataframe_depth, train_x_resized,\
+    return train_ids, dataframe_depth, train_x_resized,\
      train_y_resized.astype(int), test_x_resized
 
 # to test the script uncomment the next two lines
