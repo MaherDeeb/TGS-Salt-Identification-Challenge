@@ -102,7 +102,7 @@ random_state=0
 id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
     train_ids, train_x, train_y, test_size=0.1, random_state=random_state)
 
-id_train,X_train,y_train = _extend_train_dataset(id_train,X_train,y_train)
+#id_train,X_train,y_train = _extend_train_dataset(id_train,X_train,y_train)
 print(len(id_train),len(X_train),len(y_train))
 
 # 3. load the model and train it    

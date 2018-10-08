@@ -11,28 +11,28 @@ def build_model(input_layer, start_neurons):
     conv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(input_layer)
     conv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(conv1)
     batch1 = BatchNormalization()(conv1)
-    pool1 = MaxPooling2D((2, 2))(conv1)
+    pool1 = MaxPooling2D((2, 2))(batch1)
     pool1 = Dropout(0.25)(pool1)
 
     # 64 -> 32
     conv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(pool1)
     conv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(conv2)
     batch2 = BatchNormalization()(conv2)
-    pool2 = MaxPooling2D((2, 2))(conv2)
+    pool2 = MaxPooling2D((2, 2))(batch2)
     pool2 = Dropout(0.5)(pool2)
 
     # 32 -> 16
     conv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu",padding="same")(pool2)
     conv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu",padding="same")(conv3)
     batch3 = BatchNormalization()(conv3)
-    pool3 = MaxPooling2D((2, 2))(conv3)
+    pool3 = MaxPooling2D((2, 2))(batch3)
     pool3 = Dropout(0.5)(pool3)
 
     # 16 -> 8
     conv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu",padding="same")(pool3)
     conv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu",padding="same")(conv4)
     batch4 = BatchNormalization()(conv4)
-    pool4 = MaxPooling2D((2, 2))(conv4)
+    pool4 = MaxPooling2D((2, 2))(batch4)
     pool4 = Dropout(0.5)(pool4)
 
     # Middle
