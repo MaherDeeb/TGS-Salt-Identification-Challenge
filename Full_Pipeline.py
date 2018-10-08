@@ -100,7 +100,7 @@ train_ids, dataframe_depth, train_x, train_y, test_x = \
 # 2. Split the data
 random_state=0
 id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
-    train_ids, train_x, train_y, test_size=0.1, random_state=random_state)
+    train_ids, train_x, train_y, test_size=0.01, random_state=random_state)
 
 #id_train,X_train,y_train = _extend_train_dataset(id_train,X_train,y_train)
 print(len(id_train),len(X_train),len(y_train))
