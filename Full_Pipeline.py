@@ -57,9 +57,9 @@ def calculate_score(id_train, X_train, y_train):
     preds_cv = model.predict(X_train)
     
     for threshold in np.arange(0.5, 1.0, 0.05):
-        preds_cv_original_size = np.zeros((len(id_train), img_size_original,
+        preds_cv_original_size = np.zeros((len(X_train), img_size_original,
                                         img_size_original, 1), dtype=np.uint8)
-        y_train_orginal = np.zeros((len(id_train), img_size_original,
+        y_train_orginal = np.zeros((len(X_train), img_size_original,
                                         img_size_original, 1), dtype=np.uint8)
         for count_image in range(len(preds_cv)):
                 
@@ -71,7 +71,7 @@ def calculate_score(id_train, X_train, y_train):
                     y_train[count_image],
                           img_size_original)
         iou_mean =0
-        for count_image in  range(len(id_train)):
+        for count_image in  range(len(X_train)):
             
             sample_pred_cv_flat =_reshape_image(
                     preds_cv_original_size[count_image])
@@ -80,9 +80,15 @@ def calculate_score(id_train, X_train, y_train):
             iou_mean += _calculate_scoring(
                     sample_real_cv_flat,sample_pred_cv_flat)
         
-        iou_mean /= len(id_train)
+        iou_mean /= len(X_train)
         print(iou_mean)
 
+def _extend_train_dataset(train_ids,train_x,train_y):
+    train_x = np.append(train_x, [np.fliplr(x) for x in train_x], axis=0)
+    train_y = np.append(train_y, [np.fliplr(x) for x in train_y], axis=0)
+    for id_i in range(len(train_ids)):
+        train_ids.append(train_ids[id_i])
+    return train_ids, train_x,train_y
 # Run everything from here
 img_size_target = 128
 img_size_original = 101
@@ -95,6 +101,9 @@ train_ids, dataframe_depth, train_x, train_y, test_x = \
 random_state=0
 id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
     train_ids, train_x, train_y, test_size=0.1, random_state=random_state)
+
+id_train,X_train,y_train = _extend_train_dataset(id_train,X_train,y_train)
+print(len(id_train),len(X_train),len(y_train))
 
 # 3. load the model and train it    
 history,model = run_model(random_state,epochs = 200,batch_size = 32,
