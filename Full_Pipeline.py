@@ -53,7 +53,7 @@ def run_model(random_state,epochs,batch_size,loss="binary_crossentropy",
     return history,model
 
 
-def calculate_score(id_train, X_train, y_train):
+def calculate_score(id_train, X_train, y_train,padding):
     preds_cv = model.predict(X_train)
     
     for threshold in np.arange(0.5, 1.0, 0.05):
@@ -62,14 +62,20 @@ def calculate_score(id_train, X_train, y_train):
         y_train_orginal = np.zeros((len(X_train), img_size_original,
                                         img_size_original, 1), dtype=np.uint8)
         for count_image in range(len(preds_cv)):
+            if padding:
+                 preds_cv_original_size[count_image] = (preds_cv[
+                         count_image,14:128-13,14:128-13,
+                         0:1]>threshold).astype(int)
+                 y_train_orginal [count_image] = y_train[count_image,
+                                 14:128-13,14:128-13,0:1]
+            else:
+                preds_cv_original_size[count_image] = _resize_image_size(
+                        (preds_cv[count_image]>threshold).astype(int),
+                              img_size_original)
                 
-            preds_cv_original_size[count_image] = _resize_image_size(
-                    (preds_cv[count_image]>threshold).astype(int),
-                          img_size_original)
-            
-            y_train_orginal [count_image] = _resize_image_size(
-                    y_train[count_image],
-                          img_size_original)
+                y_train_orginal [count_image] = _resize_image_size(
+                        y_train[count_image],
+                              img_size_original)
         iou_mean =0
         for count_image in  range(len(X_train)):
             
@@ -92,10 +98,10 @@ def _extend_train_dataset(train_ids,train_x,train_y):
 # Run everything from here
 img_size_target = 128
 img_size_original = 101
-
+padding = True
 # 1. Load data
 train_ids, dataframe_depth, train_x, train_y, test_x = \
-    ETL_data_loading(img_size_target,False,False)
+    ETL_data_loading(img_size_target,False,False,padding)
 
 # 2. Split the data
 random_state=0
@@ -111,16 +117,19 @@ history,model = run_model(random_state,epochs = 200,batch_size = 32,
               optimizer="adam", metrics=["accuracy"],
               plot_KBI=False)
 # 4. predict and calculate the score
-calculate_score(id_cv, X_cv, y_cv)
+calculate_score(id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
 threshold = 0.7
 preds_test = model.predict(test_x)
 preds_test_org = np.zeros((len(preds_test), img_size_original,
                                 img_size_original, 1), dtype=np.uint8)
 for count_image in range(len(preds_test)):
-    
-    preds_test_org[count_image] =  _resize_image_size(
-            (preds_test[count_image]> threshold).astype(int),
-                  img_size_original) 
+    if padding:
+        preds_test_org[count_image] = (preds_test[count_image,14:128-13,
+                      14:128-13,0:1]> threshold).astype(int)
+    else:
+        preds_test_org[count_image] =  _resize_image_size(
+                (preds_test[count_image]> threshold).astype(int),
+                      img_size_original) 
     
 submit_results(preds_test_org)  

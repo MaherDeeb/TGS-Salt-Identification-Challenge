@@ -9,6 +9,7 @@ from keras.preprocessing.image import img_to_array, load_img
 from skimage.transform import resize
 import numpy as np
 import matplotlib.pyplot as plt
+from padding import _padding_image_constant_0
 plt.style.use('seaborn-white')
 
 # the data should be in the same folder of the script
@@ -42,7 +43,7 @@ def _load_an_image(path,_id):
 # change the type of the data so it can fit in the CNN model later
 def _img_to_array(loaded_image):
     
-    _array = img_to_array(loaded_image)[:,:,1]
+    _array = img_to_array(loaded_image)[:,:,1:2]
     
     return _array
 
@@ -58,7 +59,7 @@ def _resize_image_size(image_as_array,new_size):
 def plot_sample_image(train_x,train_x_resized,train_y,train_y_resized,dataset):
     
     plt.figure(1)
-    plt.imshow(train_x)
+    plt.imshow(train_x[:,:,0])
     plt.title("original image")
     plt.show()
     plt.figure(2)
@@ -67,7 +68,7 @@ def plot_sample_image(train_x,train_x_resized,train_y,train_y_resized,dataset):
     plt.show()
     if dataset is "train":
         plt.figure(3)
-        plt.imshow(train_y)
+        plt.imshow(train_y[:,:,0])
         plt.title("original mask")
         plt.show()
         plt.figure(4)
@@ -77,7 +78,7 @@ def plot_sample_image(train_x,train_x_resized,train_y,train_y_resized,dataset):
 
 # This the main function that should be loaded and called from other scripts    
 def ETL_data_loading(new_size,plot_train_sample = False,
-                     plot_test_sample = False):
+                     plot_test_sample = False, padding = True):
     
     # get the file names of the images
     train_ids = _images_id(path_train)
@@ -109,11 +110,14 @@ def ETL_data_loading(new_size,plot_train_sample = False,
         
         loaded_train_image = _load_an_image(path_train,train_id_i)
         train_x = _img_to_array(loaded_train_image)
-        train_x_resized[count_image] = _resize_image_size(train_x,new_size)
-        
         loaded_train_mask = _load_an_image(path_train_mask,train_id_i)
         train_y = _img_to_array(loaded_train_mask)
-        train_y_resized[count_image] =  _resize_image_size(train_y,new_size)
+        if padding:
+            train_x_resized[count_image] = _padding_image_constant_0(train_x)
+            train_y_resized[count_image] = _padding_image_constant_0(train_y)
+        else:
+            train_x_resized[count_image] = _resize_image_size(train_x,new_size)
+            train_y_resized[count_image] =  _resize_image_size(train_y,new_size)
         
         # plot sample images from train dataset
         if count_image == sample_id and plot_train_sample:
@@ -137,7 +141,10 @@ def ETL_data_loading(new_size,plot_train_sample = False,
         
         loaded_test_image = _load_an_image(path_test,test_id_i)
         test_x = _img_to_array(loaded_test_image)
-        test_x_resized[count_image] = _resize_image_size(test_x,new_size)
+        if padding:
+            test_x_resized[count_image] = _padding_image_constant_0(test_x)
+        else:
+            test_x_resized[count_image] = _resize_image_size(test_x,new_size)
         
         # plot sample images from test dataset
         if count_image == sample_id_test and plot_test_sample:
@@ -152,8 +159,8 @@ def ETL_data_loading(new_size,plot_train_sample = False,
      train_y_resized.astype(int), test_x_resized
 
 # to test the script uncomment the next two lines
-# dataframe_depth, train_x, train_y, test_x = \
-#    ETL_data_loading(128,False,False)
+#train_ids,dataframe_depth, train_x, train_y, test_x = \
+#   ETL_data_loading(128,True,False,True)
 
     
 
