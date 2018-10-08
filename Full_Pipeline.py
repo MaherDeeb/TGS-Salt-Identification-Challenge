@@ -113,7 +113,7 @@ history,model = run_model(random_state,epochs = 200,batch_size = 32,
 # 4. predict and calculate the score
 calculate_score(id_cv, X_cv, y_cv)
 # 5. submitt
-threshold = 0.75
+threshold = 0.8
 preds_test = model.predict(test_x)
 preds_test_org = np.zeros((len(preds_test), img_size_original,
                                 img_size_original, 1), dtype=np.uint8)
