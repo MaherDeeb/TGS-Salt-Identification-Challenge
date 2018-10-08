@@ -101,7 +101,7 @@ img_size_original = 101
 padding = True
 # 1. Load data
 train_ids, dataframe_depth, train_x, train_y, test_x = \
-    ETL_data_loading(img_size_target,False,False,padding)
+    ETL_data_loading(img_size_target,True,False,padding)
 
 # 2. Split the data
 random_state=0
