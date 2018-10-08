@@ -11,7 +11,8 @@ def _padding_image_constant_0(array_to_pad):
     #                      constant_values=(0, 0))
     
     #padded_array =np.pad(array_to_pad, ((14,13),(14,13),(0,0)), 'symmetric')
-    padded_array =np.pad(array_to_pad, ((14,13),(14,13),(0,0)), 'wrap')
+    #padded_array =np.pad(array_to_pad, ((14,13),(14,13),(0,0)), 'wrap')
+    padded_array =np.pad(array_to_pad, ((14,13),(14,13),(0,0)), 'reflect')
     return padded_array
 
 
