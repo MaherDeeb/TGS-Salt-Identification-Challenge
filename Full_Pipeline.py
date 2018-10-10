@@ -111,11 +111,11 @@ def _extend_train_dataset(train_ids,train_x,train_y):
 img_size_target = 128
 img_size_original = 101
 padding = True
-combine_models = False
+combine_models = True
 padding_type = 'constant'
 model_list = ['wrap',
               'symmetric',
-              'reflect']
+              'reflect','constant']
 # 1. Load data
 train_ids, dataframe_depth, train_x, train_y, test_x = \
     ETL_data_loading(img_size_target,True,False,padding, padding_type)
@@ -137,7 +137,7 @@ history,model = run_model(combine_models, random_state,epochs = 200,
 # 4. predict and calculate the score
 calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
-threshold = 0.6
+threshold = 0.7
 
 if combine_models:
     preds_test = np.zeros((test_x.shape))
