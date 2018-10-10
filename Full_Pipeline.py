@@ -112,7 +112,7 @@ img_size_target = 128
 img_size_original = 101
 padding = True
 combine_models = False
-padding_type = 'wrap'
+padding_type = 'constant'
 model_list = ['wrap',
               'symmetric',
               'reflect']
@@ -126,7 +126,7 @@ id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
     train_ids, train_x, train_y, test_size=0.1, random_state=random_state)
 
 #id_train,X_train,y_train = _extend_train_dataset(id_train,X_train,y_train)
-X_train,y_train = _create_new_image(X_train,y_train,15000)
+#X_train,y_train = _create_new_image(X_train,y_train,15000)
 print(len(id_train),len(X_train),len(y_train))
 
 # 3. load the model and train it    
@@ -137,7 +137,7 @@ history,model = run_model(combine_models, random_state,epochs = 200,
 # 4. predict and calculate the score
 calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
-threshold = 0.7
+threshold = 0.6
 
 if combine_models:
     preds_test = np.zeros((test_x.shape))
