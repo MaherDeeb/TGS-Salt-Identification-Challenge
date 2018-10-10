@@ -132,12 +132,12 @@ model_list = ['wrap',
               'symmetric',
               'reflect','constant']
 learning_rate = 0.001
-training_round = 2
+training_round = 1
 unet = 2
 optimizer = optimizers.adam(lr = learning_rate)
 # 1. Load data
 train_ids, dataframe_depth, train_x, train_y, test_x = \
-    ETL_data_loading(img_size_target,True,False,padding, padding_type)
+    ETL_data_loading(img_size_target,False,False,padding, padding_type)
 
 # 2. Split the data
 random_state=0
@@ -157,7 +157,7 @@ history,model = run_model(unet,training_round,combine_models,
 # 4. predict and calculate the score
 calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
-threshold = 0.7
+threshold = 0.8
 
 if combine_models:
     preds_test = np.zeros((test_x.shape))
