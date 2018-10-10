@@ -8,6 +8,8 @@ from keras import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 import matplotlib.pyplot as plt
 import numpy as np
+from keras.models import load_model
+from keras import optimizers
 
 from ETL import ETL_data_loading,_resize_image_size,plot_sample_image
 from U_Net_layers import build_model
@@ -15,6 +17,7 @@ from submission import submit_results,_reshape_image
 from scoring import _calculate_scoring
 from combine_models import _combine_models
 from create_new_image import _create_new_image
+from U_Net_res_layers import build_model_res
 def plot_kbis(history):
     
     fig, (ax_loss, ax_acc) = plt.subplots(1, 2, figsize=(15,5))
@@ -25,22 +28,34 @@ def plot_kbis(history):
     ax_acc.plot(history.epoch, history.history["val_acc"],
                 label="Validation accuracy")
 
-def run_model(combine_models,random_state,epochs,batch_size,loss="binary_crossentropy", 
+def run_model(unet,training_round, combine_models,random_state,epochs,batch_size,
+              loss="binary_crossentropy", 
               optimizer="adam", metrics=["accuracy"],
               plot_KBI=False):
     if combine_models is False:
-        input_layer = Input((img_size_target, img_size_target, 1))
-        output_layer = build_model(input_layer, 16)
-        model = Model(input_layer, output_layer)
+        if training_round == 1:
+            input_layer = Input((img_size_target, img_size_target, 1))
+            if unet == 1:
+                output_layer = build_model(input_layer, 16)
+            if unet == 2:
+                output_layer = build_model_res(input_layer, 16,0.5)
+            model = Model(input_layer, output_layer)
+        else:
+            model1 = load_model(
+                    "./keras_random_state_{}_reflect.model".format(random_state))
+            input_x = model1.layers[0].input
+
+            output_layer = build_model(input_x, 16)
+            model = Model(input_x, output_layer)
         
         model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
         model.summary()
-        early_stopping = EarlyStopping(patience=10, verbose=1)
+        early_stopping = EarlyStopping(patience=25, verbose=1)
         model_checkpoint = ModelCheckpoint(
                 "./keras_random_state_{}.model".format(random_state),
                                            save_best_only=True, verbose=1)
         reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5,
-                                      min_lr=0.00001, verbose=1)
+                                      min_lr=0.0000001, verbose=1)
         history = model.fit(X_train, y_train,
                             validation_data=[X_cv, y_cv], 
                             epochs=epochs,
@@ -111,11 +126,15 @@ def _extend_train_dataset(train_ids,train_x,train_y):
 img_size_target = 128
 img_size_original = 101
 padding = True
-combine_models = True
-padding_type = 'constant'
+combine_models = False
+padding_type = 'wrap'
 model_list = ['wrap',
               'symmetric',
               'reflect','constant']
+learning_rate = 0.001
+training_round = 2
+unet = 2
+optimizer = optimizers.adam(lr = learning_rate)
 # 1. Load data
 train_ids, dataframe_depth, train_x, train_y, test_x = \
     ETL_data_loading(img_size_target,True,False,padding, padding_type)
@@ -126,13 +145,14 @@ id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
     train_ids, train_x, train_y, test_size=0.1, random_state=random_state)
 
 #id_train,X_train,y_train = _extend_train_dataset(id_train,X_train,y_train)
-#X_train,y_train = _create_new_image(X_train,y_train,15000)
+#X_train,y_train = _create_new_image(X_train,y_train,5000)
 print(len(id_train),len(X_train),len(y_train))
 
 # 3. load the model and train it    
-history,model = run_model(combine_models, random_state,epochs = 200,
+history,model = run_model(unet,training_round,combine_models, 
+                          random_state,epochs = 200,
                           batch_size = 32, loss="binary_crossentropy",
-                          optimizer="adam", metrics=["accuracy"],
+                          optimizer=optimizer, metrics=["accuracy"],
                           plot_KBI=False)
 # 4. predict and calculate the score
 calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
