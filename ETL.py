@@ -9,7 +9,7 @@ from keras.preprocessing.image import img_to_array, load_img
 from skimage.transform import resize
 import numpy as np
 import matplotlib.pyplot as plt
-from padding import _padding_image_constant_0
+from padding import _padding_image
 plt.style.use('seaborn-white')
 
 # the data should be in the same folder of the script
@@ -78,7 +78,8 @@ def plot_sample_image(train_x,train_x_resized,train_y,train_y_resized,dataset):
 
 # This the main function that should be loaded and called from other scripts    
 def ETL_data_loading(new_size,plot_train_sample = False,
-                     plot_test_sample = False, padding = True):
+                     plot_test_sample = False, padding = True,
+                     padding_type = 'constant'):
     
     # get the file names of the images
     train_ids = _images_id(path_train)
@@ -113,8 +114,8 @@ def ETL_data_loading(new_size,plot_train_sample = False,
         loaded_train_mask = _load_an_image(path_train_mask,train_id_i)
         train_y = _img_to_array(loaded_train_mask)
         if padding:
-            train_x_resized[count_image] = _padding_image_constant_0(train_x)
-            train_y_resized[count_image] = _padding_image_constant_0(train_y)
+            train_x_resized[count_image] = _padding_image(train_x,padding_type)
+            train_y_resized[count_image] = _padding_image(train_y,padding_type)
         else:
             train_x_resized[count_image] = _resize_image_size(train_x,new_size)
             train_y_resized[count_image] =  _resize_image_size(train_y,new_size)
@@ -142,7 +143,7 @@ def ETL_data_loading(new_size,plot_train_sample = False,
         loaded_test_image = _load_an_image(path_test,test_id_i)
         test_x = _img_to_array(loaded_test_image)
         if padding:
-            test_x_resized[count_image] = _padding_image_constant_0(test_x)
+            test_x_resized[count_image] = _padding_image(test_x,padding_type)
         else:
             test_x_resized[count_image] = _resize_image_size(test_x,new_size)
         

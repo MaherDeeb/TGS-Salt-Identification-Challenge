@@ -13,7 +13,8 @@ from ETL import ETL_data_loading,_resize_image_size,plot_sample_image
 from U_Net_layers import build_model
 from submission import submit_results,_reshape_image
 from scoring import _calculate_scoring
-
+from combine_models import _combine_models
+from create_new_image import _create_new_image
 def plot_kbis(history):
     
     fig, (ax_loss, ax_acc) = plt.subplots(1, 2, figsize=(15,5))
@@ -24,37 +25,48 @@ def plot_kbis(history):
     ax_acc.plot(history.epoch, history.history["val_acc"],
                 label="Validation accuracy")
 
-def run_model(random_state,epochs,batch_size,loss="binary_crossentropy", 
+def run_model(combine_models,random_state,epochs,batch_size,loss="binary_crossentropy", 
               optimizer="adam", metrics=["accuracy"],
               plot_KBI=False):
+    if combine_models is False:
+        input_layer = Input((img_size_target, img_size_target, 1))
+        output_layer = build_model(input_layer, 16)
+        model = Model(input_layer, output_layer)
+        
+        model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
+        model.summary()
+        early_stopping = EarlyStopping(patience=10, verbose=1)
+        model_checkpoint = ModelCheckpoint(
+                "./keras_random_state_{}.model".format(random_state),
+                                           save_best_only=True, verbose=1)
+        reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5,
+                                      min_lr=0.00001, verbose=1)
+        history = model.fit(X_train, y_train,
+                            validation_data=[X_cv, y_cv], 
+                            epochs=epochs,
+                            batch_size=batch_size,
+                            callbacks=[early_stopping,
+                                       model_checkpoint, reduce_lr])
+        
+        if plot_KBI:
+            plot_kbis(history)
     
-    input_layer = Input((img_size_target, img_size_target, 1))
-    output_layer = build_model(input_layer, 16)
-    model = Model(input_layer, output_layer)
-    
-    model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
-    model.summary()
-    early_stopping = EarlyStopping(patience=10, verbose=1)
-    model_checkpoint = ModelCheckpoint(
-            "./keras_random_state_{}.model".format(random_state),
-                                       save_best_only=True, verbose=1)
-    reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5,
-                                  min_lr=0.00001, verbose=1)
-    history = model.fit(X_train, y_train,
-                        validation_data=[X_cv, y_cv], 
-                        epochs=epochs,
-                        batch_size=batch_size,
-                        callbacks=[early_stopping,
-                                   model_checkpoint, reduce_lr])
-    
-    if plot_KBI:
-        plot_kbis(history)
-    
-    return history,model
+        return history,model
+    else:
+        history ='' 
+        model = ''
+        return history ,model
 
 
-def calculate_score(id_train, X_train, y_train,padding):
-    preds_cv = model.predict(X_train)
+def calculate_score(combine_models,model_list,id_train, X_train,
+                    y_train,padding):
+    
+    if combine_models:
+        preds_cv = np.zeros((X_train.shape))
+        preds_cv = _combine_models(model_list, X_train, preds_cv, 
+                                   img_size_target)
+    else:
+        preds_cv = model.predict(X_train)
     
     for threshold in np.arange(0.5, 1.0, 0.05):
         preds_cv_original_size = np.zeros((len(X_train), img_size_original,
@@ -99,9 +111,14 @@ def _extend_train_dataset(train_ids,train_x,train_y):
 img_size_target = 128
 img_size_original = 101
 padding = True
+combine_models = False
+padding_type = 'wrap'
+model_list = ['wrap',
+              'symmetric',
+              'reflect']
 # 1. Load data
 train_ids, dataframe_depth, train_x, train_y, test_x = \
-    ETL_data_loading(img_size_target,True,False,padding)
+    ETL_data_loading(img_size_target,True,False,padding, padding_type)
 
 # 2. Split the data
 random_state=0
@@ -109,18 +126,26 @@ id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
     train_ids, train_x, train_y, test_size=0.1, random_state=random_state)
 
 #id_train,X_train,y_train = _extend_train_dataset(id_train,X_train,y_train)
+X_train,y_train = _create_new_image(X_train,y_train,15000)
 print(len(id_train),len(X_train),len(y_train))
 
 # 3. load the model and train it    
-history,model = run_model(random_state,epochs = 200,batch_size = 32,
-                          loss="binary_crossentropy", 
-              optimizer="adam", metrics=["accuracy"],
-              plot_KBI=False)
+history,model = run_model(combine_models, random_state,epochs = 200,
+                          batch_size = 32, loss="binary_crossentropy",
+                          optimizer="adam", metrics=["accuracy"],
+                          plot_KBI=False)
 # 4. predict and calculate the score
-calculate_score(id_cv, X_cv, y_cv,padding =padding)
+calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
 threshold = 0.7
-preds_test = model.predict(test_x)
+
+if combine_models:
+    preds_test = np.zeros((test_x.shape))
+    preds_test = _combine_models(model_list, test_x, preds_test,
+                                 img_size_target)
+else:
+    preds_test = model.predict(test_x)
+    
 preds_test_org = np.zeros((len(preds_test), img_size_original,
                                 img_size_original, 1), dtype=np.uint8)
 for count_image in range(len(preds_test)):
