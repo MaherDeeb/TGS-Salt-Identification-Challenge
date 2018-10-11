@@ -126,7 +126,7 @@ def _extend_train_dataset(train_ids,train_x,train_y):
 img_size_target = 128
 img_size_original = 101
 padding = True
-combine_models = False
+combine_models = True
 padding_type = 'reflect'
 model_list = ['wp_on_reflect_2','wrap_2','wrap','symmetric', 'reflect']
 learning_rate = 0.001
@@ -153,10 +153,10 @@ history,model = run_model(unet,training_round,combine_models,
                           optimizer=optimizer, metrics=["accuracy"],
                           plot_KBI=False)
 # 4. predict and calculate the score
-model = load_model("./keras_random_state_{}.model".format(random_state))
+#model = load_model("./keras_random_state_{}.model".format(random_state))
 calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
-threshold = 0.75
+threshold = 0.7
 
 if combine_models:
     preds_test = np.zeros((test_x.shape))
