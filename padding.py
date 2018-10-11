@@ -19,7 +19,7 @@ def _padding_image(array_to_pad,padding_type):
     if 'wrap' in padding_type:
         padded_array =np.pad(array_to_pad, ((14,13),(14,13),(0,0)), 'wrap')
         
-    if padding_type is 'reflect':
+    if 'reflect' in padding_type:
         padded_array =np.pad(array_to_pad, ((14,13),(14,13),(0,0)), 'reflect')
         
     return padded_array
