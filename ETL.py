@@ -117,8 +117,10 @@ def ETL_data_loading(new_size,plot_train_sample = False,
             train_x_resized[count_image] = _padding_image(train_x,padding_type)
             train_y_resized[count_image] = _padding_image(train_y,padding_type)
         else:
-            train_x_resized[count_image] = _resize_image_size(train_x,new_size)
-            train_y_resized[count_image] =  _resize_image_size(train_y,new_size)
+            #train_x_resized[count_image] = _resize_image_size(train_x,new_size)
+            #train_y_resized[count_image] =  _resize_image_size(train_y,new_size)
+            train_x_resized[count_image] = train_x
+            train_y_resized[count_image] = train_y
         
         # plot sample images from train dataset
         if count_image == sample_id and plot_train_sample:
@@ -145,7 +147,8 @@ def ETL_data_loading(new_size,plot_train_sample = False,
         if padding:
             test_x_resized[count_image] = _padding_image(test_x,padding_type)
         else:
-            test_x_resized[count_image] = _resize_image_size(test_x,new_size)
+            #test_x_resized[count_image] = _resize_image_size(test_x,new_size)
+            test_x_resized[count_image] = test_x
         
         # plot sample images from test dataset
         if count_image == sample_id_test and plot_test_sample:
