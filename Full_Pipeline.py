@@ -42,7 +42,7 @@ def run_model(unet,training_round, combine_models,random_state,epochs,batch_size
             model = Model(input_layer, output_layer)
         else:
             model1 = load_model(
-                    "./keras_random_state_{}.model".format(random_state))
+                    "./keras_random_state_{}_wrap_2.model".format(random_state))
             input_x = model1.layers[0].input
 
             output_layer = build_model(input_x, 16)
@@ -126,8 +126,8 @@ def _extend_train_dataset(train_ids,train_x,train_y):
 img_size_target = 128
 img_size_original = 101
 padding = True
-combine_models = True
-padding_type = 'wrap'
+combine_models = False
+padding_type = 'reflect'
 model_list = ['wrap_2',
         'wrap',
               'symmetric',
@@ -156,7 +156,7 @@ history,model = run_model(unet,training_round,combine_models,
                           optimizer=optimizer, metrics=["accuracy"],
                           plot_KBI=False)
 # 4. predict and calculate the score
-#model = load_model("./keras_random_state_{}.model".format(random_state))
+model = load_model("./keras_random_state_{}.model".format(random_state))
 calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
 threshold = 0.7
