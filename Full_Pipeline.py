@@ -123,9 +123,9 @@ def _extend_train_dataset(train_ids,train_x,train_y):
         train_ids.append(train_ids[id_i])
     return train_ids, train_x,train_y
 # Run everything from here
-img_size_target = 101
+img_size_target = 128
 img_size_original = 101
-padding = False
+padding = True
 combine_models = False
 padding_type = 'wrap'
 model_list = ['wrap',

@@ -72,7 +72,7 @@ def build_model_res(input_layer, start_neurons, DropoutRatio = 0.5):
     
     # 12 -> 25
     #deconv3 = Conv2DTranspose(start_neurons * 4, (3, 3), strides=(2, 2), padding="same")(uconv4)
-    deconv3 = Conv2DTranspose(start_neurons * 4, (3, 3), strides=(2, 2), padding="valid")(uconv4)
+    deconv3 = Conv2DTranspose(start_neurons * 4, (3, 3), strides=(2, 2), padding="same")(uconv4)
     uconv3 = concatenate([deconv3, conv3])    
     uconv3 = Dropout(DropoutRatio)(uconv3)
     
@@ -91,7 +91,7 @@ def build_model_res(input_layer, start_neurons, DropoutRatio = 0.5):
     
     # 50 -> 101
     #deconv1 = Conv2DTranspose(start_neurons * 1, (3, 3), strides=(2, 2), padding="same")(uconv2)
-    deconv1 = Conv2DTranspose(start_neurons * 1, (3, 3), strides=(2, 2), padding="valid")(uconv2)
+    deconv1 = Conv2DTranspose(start_neurons * 1, (3, 3), strides=(2, 2), padding="same")(uconv2)
     uconv1 = concatenate([deconv1, conv1])
     
     uconv1 = Dropout(DropoutRatio)(uconv1)
