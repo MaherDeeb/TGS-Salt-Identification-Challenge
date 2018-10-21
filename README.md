@@ -33,10 +33,10 @@ Other libraries:
 Numpy, matplotlib, seaborn, ipywidgets (for interactive jupyter notebook)
 
 The train and test data has to be saved inside the following directories (folders)
-path_train = './data/images/' \n
-path_train_mask = './data/masks/' \n
-path_test = './data/images_test/' \n
-path_depth = './data/depths.csv' \n
+path_train = './data/images/' <br />
+path_train_mask = './data/masks/' <br />
+path_test = './data/images_test/' <br />
+path_depth = './data/depths.csv' <br />
 
 ## The pipeline components:
 1. Full_Pipeline.py: this is the main file that should be used to train the model and prepare the submission file. It calls functions saved in other scripts. Keras and and tensorFlow should be installed to the run the script.
