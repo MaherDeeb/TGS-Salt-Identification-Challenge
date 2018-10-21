@@ -4,6 +4,16 @@
 """
 import numpy as np
 
+    #FP = np.sum(1*np.subtract(sample_x,sample_pre_x)<0)
+    #FN = np.sum(1*np.subtract(sample_x,sample_pre_x)>0)
+    #if (TP+FP+FN)!=0:
+    #    IoU_t = 1-TP/(TP+FP+FN)
+   # else:
+        #IoU_t = 1
+        
+    #return K.variable(value=IoU_t)
+
+
 sample_x = np.multiply(np.random.randint(2, size=100),np.array(range(100)))
 sample_pre_x = np.multiply(np.random.randint(2, size=100),np.array(range(100)))
 

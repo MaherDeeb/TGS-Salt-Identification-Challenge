@@ -93,7 +93,7 @@ def ETL_data_loading(new_size,plot_train_sample = False,
     print("The depth dataset contains {} data points".format(
             len(dataframe_depth)))
     print("The first 5 rows of the depth dataframe:")
-    print(dataframe_depth.head())
+    #print(dataframe_depth.head())
     
     # this can be changed between 0 and 3999 to print a sample figure from the
     # traning dataset

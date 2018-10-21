@@ -18,6 +18,9 @@ from scoring import _calculate_scoring
 from combine_models import _combine_models
 from create_new_image import _create_new_image
 from U_Net_res_layers import build_model_res
+from label_data import contain_salts
+from diff_data import image_diff
+
 def plot_kbis(history):
     
     fig, (ax_loss, ax_acc) = plt.subplots(1, 2, figsize=(15,5))
@@ -42,13 +45,13 @@ def run_model(unet,training_round, combine_models,random_state,epochs,batch_size
             model = Model(input_layer, output_layer)
         else:
             model1 = load_model(
-                    "./keras_random_state_{}_wp_on_reflect_2.model".format(random_state))
+                    "./keras_random_state_0_war_rs_0.model")
             input_x = model1.layers[0].input
 
             output_layer = build_model(input_x, 16)
             model = Model(input_x, output_layer)
         
-        model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
+        model.compile(loss=loss, optimizer=optimizer, metrics=metrics,loss_weights=[0.2])
         model.summary()
         early_stopping = EarlyStopping(patience=25, verbose=1)
         model_checkpoint = ModelCheckpoint(
@@ -126,17 +129,21 @@ def _extend_train_dataset(train_ids,train_x,train_y):
 img_size_target = 128
 img_size_original = 101
 padding = True
-combine_models = True
-padding_type = 'symmetric'
+combine_models = False
+padding_type = 'reflect'
 model_list = ['wp_on_reflect_2','wrap_2','wrap','symmetric', 'reflect']
-learning_rate = 0.001
-training_round = 2
+learning_rate = 0.01
+training_round = 1
 unet = 2
 optimizer = optimizers.adam(lr = learning_rate)
 # 1. Load data
 train_ids, dataframe_depth, train_x, train_y, test_x = \
     ETL_data_loading(img_size_target,False,False,padding, padding_type)
 
+#train_x_diff,test_x_diff = image_diff(train_x,test_x)
+#train_x += train_x_diff
+#test_x += test_x_diff
+#train_ids, train_x, train_y = contain_salts(train_ids, train_x,train_y)
 # 2. Split the data
 random_state=0
 id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
@@ -147,16 +154,43 @@ id_train, id_cv, X_train, X_cv, y_train, y_cv = train_test_split(
 print(len(id_train),len(X_train),len(y_train))
 
 # 3. load the model and train it    
+import keras.backend as K
+
+def customLoss(y_true, y_pred):
+    #shape = K.int_shape(y_true)
+    results = []
+    for image_count in range(10):
+        y_true_f = K.reshape(y_true[image_count],(16384,1))
+        print(y_true_f)
+        y_pred_f = K.reshape(y_pred[image_count],(16384,1))
+        TP = K.sum(K.cast(K.equal(y_true_f[0]-y_pred_f[0],0),'float32'),axis=-1)
+    return TP
+        #print(TP)
+        #FP = K.sum(K.cast(K.less(y_true_f-y_pred_f,0),'float32'),axis=-1)
+        #FN =  K.sum(K.cast(K.greater(y_true_f-y_pred_f,0),'float32'),axis=-1)
+        #print(FP)
+        #print(K.sum(FP+TP+FN,axis=0))
+        #results.append(K.sum(FP+TP+FN,axis=0))
+    #FN = K.sum(1.0*((y_true-y_pred)>0))
+    #if K.not_equal(TP+FP,None):
+    #try:
+    #    return  K.mean(results)
+    #except:
+    #    return 1
+    #else:
+        #return 1
+        #return 1-TP/K.sum(TP,FP,FN)
+#'binary_crossentropy'
 history,model = run_model(unet,training_round,combine_models, 
                           random_state,epochs = 200,
-                          batch_size = 16, loss="binary_crossentropy",
+                          batch_size = 16, loss='binary_crossentropy',
                           optimizer=optimizer, metrics=["accuracy"],
                           plot_KBI=False)
 # 4. predict and calculate the score
-#model = load_model("./keras_random_state_{}.model".format(random_state))
+model = load_model("./keras_random_state_{}.model".format(random_state))
 calculate_score(combine_models,model_list,id_cv, X_cv, y_cv,padding =padding)
 # 5. submitt
-threshold = 0.6
+threshold = 0.5
 
 if combine_models:
     preds_test = np.zeros((test_x.shape))
