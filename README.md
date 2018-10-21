@@ -42,10 +42,26 @@ train and test depth values: path_depth = './data/depths.csv' <br />
 1. Full_Pipeline.py: this is the main file that should be used to train the model and prepare the submission file. It calls functions saved in other scripts. Keras and and tensorFlow should be installed to the run the script.
 <br />
 Run the script:
-<br />
+
 `python Full_Pipeline.py`
-<br />
-2. ETL.py: This script loads train and test data and prepare it by applying padding and transforming it to numpy array.
+
+2. ETL.py: this script loads train and test data and prepare it by applying padding and transforming it to numpy array.
+
+3. U_Net_layers.py, U_Net_layers_2.py, U_Net_res_layers.py: different versions of U-net models.
+
+4. padding.py: this script applys different numpy padding so that the size of the image increases from 101 to 128
+
+5. scoring.py: this script calculates the IoU score
+
+6. label_data.py: this script labels the train data and filter the images based on salt contain. It only returns the images that have salt.
+
+7. diff_data.py: it returns the first derivatives of each image. Training the model using diff_data or by adding the first derivatives to the original images increases the accuracy of the model in case of train set but test set.
+
+8. create_new_image.py: it provides a procedure to create new images using random parts from the original images. It did not improve the model.
+
+9. submission.py: it prepares the submission file with a date-based prefix
+
+10. combine_models.py: this script combines the results of different models (provided in this repo *.model) together. It increases the score about 1%
 
 ## References:
 https://www.anaconda.com/download/
