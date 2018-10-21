@@ -18,16 +18,16 @@ https://developer.nvidia.com/cudnn
 To install Tensorflow:
 <br />
 1. GPU support:
-<br />
-pip install tensorflow-gpu
-<br />
+
+`pip install tensorflow-gpu`
+
 2. without GPU support:
-<br />
-pip install tensorflow
-<br />
+
+`pip install tensorflow`
+
 If you use python with anaconda, you can install the libraries directly using anaconda environment UI or:
 <br />
-conda install tensorflow-gpu
+`conda install tensorflow-gpu`
 
 Other libraries:
 Numpy, matplotlib, seaborn, ipywidgets (for interactive jupyter notebook)
@@ -43,7 +43,7 @@ train and test depth values: path_depth = './data/depths.csv' <br />
 <br />
 Run the script:
 <br />
-python Full_Pipeline.py
+`python Full_Pipeline.py`
 <br />
 2. ETL.py: This script loads train and test data and prepare it by applying padding and transforming it to numpy array.
 
