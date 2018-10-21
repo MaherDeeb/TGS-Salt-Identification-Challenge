@@ -29,10 +29,23 @@ If you use python with anaconda, you can install the libraries directly using an
 
 conda install tensorflow-gpu
 
+Other libraries:
+Numpy, matplotlib, seaborn, ipywidgets (for interactive jupyter notebook)
+
+The train and test data has to be saved inside the following directories (folders)
+path_train = './data/images/' \n
+path_train_mask = './data/masks/' \n
+path_test = './data/images_test/' \n
+path_depth = './data/depths.csv' \n
+
 ## The pipeline components:
 1. Full_Pipeline.py: this is the main file that should be used to train the model and prepare the submission file. It calls functions saved in other scripts. Keras and and tensorFlow should be installed to the run the script.
 
-2.
+Run the script:
+
+python Full_Pipeline.py
+
+2. ETL.py: This script loads train and test data and prepare it by applying padding and transforming it to numpy array.
 
 ## References:
 https://www.anaconda.com/download/
@@ -43,4 +56,5 @@ https://www.tensorflow.org/install/gpu
 
 https://keras.io/
 
+https://ipywidgets.readthedocs.io/en/stable/
 
